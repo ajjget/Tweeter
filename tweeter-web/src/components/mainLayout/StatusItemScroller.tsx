@@ -7,18 +7,29 @@ import { AuthToken, FakeData, Status, User } from "tweeter-shared";
 import { useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { ToastActionsContext } from "../toaster/ToastContexts";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { ToastType } from "../toaster/Toast";
-import Post from "../statusItem/Post";
+import StatusItem from "../statusItem/StatusItem";
 
 export const PAGE_SIZE = 10;
 
-const FeedScroller = () => {
+interface Props {
+    itemDescription: string,
+    featureUrl: string,
+    loadMoreContent: (
+        authToken: AuthToken,
+        userAlias: string,
+        pageSize: number,
+        lastItem: Status | null)
+        =>
+        Promise<[Status[], boolean]>   
+}
+
+const StatusItemScroller = (props: Props) => {
   const { displayToast } = useContext(ToastActionsContext);
   const [items, setItems] = useState<Status[]>([]);
   const [hasMoreItems, setHasMoreItems] = useState(true);
   const [lastItem, setLastItem] = useState<Status | null>(null);
-  const navigate = useNavigate();
 
   const addItems = (newItems: Status[]) =>
     setItems((previousItems) => [...previousItems, ...newItems]);
@@ -56,7 +67,7 @@ const FeedScroller = () => {
 
   const loadMoreItems = async (lastItem: Status | null) => {
     try {
-      const [newItems, hasMore] = await loadMoreFeedItems(
+      const [newItems, hasMore] = await props.loadMoreContent(
         authToken!,
         displayedUser!.alias,
         PAGE_SIZE,
@@ -69,48 +80,10 @@ const FeedScroller = () => {
     } catch (error) {
       displayToast(
         ToastType.Error,
-        `Failed to load feed items because of exception: ${error}`,
+        `Failed to load ${props.itemDescription} items because of exception: ${error}`,
         0
       );
     }
-  };
-
-  const loadMoreFeedItems = async (
-    authToken: AuthToken,
-    userAlias: string,
-    pageSize: number,
-    lastItem: Status | null
-  ): Promise<[Status[], boolean]> => {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
-  };
-
-  const navigateToUser = async (event: React.MouseEvent): Promise<void> => {
-    event.preventDefault();
-
-    try {
-      const alias = extractAlias(event.target.toString());
-
-      const toUser = await getUser(authToken!, alias);
-
-      if (toUser) {
-        if (!toUser.equals(displayedUser!)) {
-          setDisplayedUser(toUser);
-          navigate(`/feed/${toUser.alias}`);
-        }
-      }
-    } catch (error) {
-      displayToast(
-        ToastType.Error,
-        `Failed to get user because of exception: ${error}`,
-        0
-      );
-    }
-  };
-
-  const extractAlias = (value: string): string => {
-    const index = value.indexOf("@");
-    return value.substring(index);
   };
 
   const getUser = async (
@@ -133,44 +106,13 @@ const FeedScroller = () => {
         {items.map((item, index) => (
           <div
             key={index}
-            className="row mb-3 mx-0 px-0 border rounded bg-white"
-          >
-            <div className="col bg-light mx-0 px-0">
-              <div className="container px-0">
-                <div className="row mx-0 px-0">
-                  <div className="col-auto p-3">
-                    <img
-                      src={item.user.imageUrl}
-                      className="img-fluid"
-                      width="80"
-                      alt="Posting user"
-                    />
-                  </div>
-                  <div className="col">
-                    <h2>
-                      <b>
-                        {item.user.firstName} {item.user.lastName}
-                      </b>{" "}
-                      -{" "}
-                      <Link
-                        to={`/feed/${item.user.alias}`}
-                        onClick={navigateToUser}
-                      >
-                        {item.user.alias}
-                      </Link>
-                    </h2>
-                    {item.formattedDate}
-                    <br />
-                    <Post status={item} featurePath="/feed" />
-                  </div>
-                </div>
-              </div>
-            </div>
+            className="row mb-3 mx-0 px-0 border rounded bg-white">
+            <StatusItem status={item} featureUrl={props.featureUrl}/>
           </div>
         ))}
       </InfiniteScroll>
     </div>
   );
-};
+}
 
-export default FeedScroller;
+export default StatusItemScroller;
