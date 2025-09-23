@@ -1,45 +1,35 @@
 import "./PostStatus.css";
 import { useState } from "react";
-import { useContext } from "react";
-import { UserInfoContext } from "../userInfo/UserInfoContexts";
-import { ToastActionsContext } from "../toaster/ToastContexts";
 import { AuthToken, Status } from "tweeter-shared";
-import { ToastType } from "../toaster/Toast";
+import { useMessageActions } from "../toaster/MessageHooks";
+import { useUserInfo } from "../userInfo/UserInfoHooks";
 
 const PostStatus = () => {
-  const { displayToast, deleteToast } = useContext(ToastActionsContext);
+  const { displayInfoMessage, displayErrorMessage, deleteMessage } = useMessageActions();
 
-  const { currentUser, authToken } = useContext(UserInfoContext);
+  const { currentUser, authToken } = useUserInfo();
   const [post, setPost] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const submitPost = async (event: React.MouseEvent) => {
     event.preventDefault();
 
-    var postingStatusToastId = "";
+    var postingStatusMessageId = "";
 
     try {
       setIsLoading(true);
-      postingStatusToastId = displayToast(
-        ToastType.Info,
-        "Posting status...",
-        0
-      );
+      postingStatusMessageId = displayInfoMessage("Posting status...", 0);
 
       const status = new Status(post, currentUser!, Date.now());
 
       await postStatus(authToken!, status);
 
       setPost("");
-      displayToast(ToastType.Info, "Status posted!", 2000);
+      displayInfoMessage("Status posted!", 2000);
     } catch (error) {
-      displayToast(
-        ToastType.Error,
-        `Failed to post the status because of exception: ${error}`,
-        0
-      );
+      displayErrorMessage(`Failed to post the status because of exception: ${error}`);
     } finally {
-      deleteToast(postingStatusToastId);
+      deleteMessage(postingStatusMessageId);
       setIsLoading(false);
     }
   };
