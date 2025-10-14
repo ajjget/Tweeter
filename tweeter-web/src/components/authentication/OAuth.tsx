@@ -6,11 +6,11 @@ const OAuth = () => {
     const { displayInfoMessage } = useMessageActions();
 
     const displayInfoMessageWithDarkBackground = (message: string): void => {
-        displayInfoMessage(
-        message,
-        3000,
-        "text-white bg-primary"
-        );
+      displayInfoMessage(
+      message,
+      3000,
+      "text-white bg-primary"
+      );
     };
 
     return (
