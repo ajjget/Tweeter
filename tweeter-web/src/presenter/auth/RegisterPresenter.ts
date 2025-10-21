@@ -82,6 +82,6 @@ export class RegisterPresenter extends AuthPresenter<RegisterView> {
     this.imageBytes = imageBytes;
     this.imageFileExtension = imageFileExtension;
 
-    this.doAuth(alias, password, rememberMe);
+    this.doAuthenticationOperation(alias, password, rememberMe);
   }
 }

@@ -1,12 +1,12 @@
 import "./Register.css";
 import "bootstrap/dist/css/bootstrap.css";
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthenticationFormLayout from "../AuthenticationFormLayout";
 import AuthenticationFields from "../AuthenticationFields";
 import { useMessageActions } from "../../toaster/MessageHooks";
 import { useUserInfoActions } from "../../userInfo/UserInfoHooks";
-import { RegisterPresenter, RegisterView } from "../../../presenter/RegisterPresenter";
+import { RegisterPresenter, RegisterView } from "../../../presenter/auth/RegisterPresenter";
 
 const Register = () => {
   const [firstName, setFirstName] = useState("");
@@ -36,6 +36,10 @@ const Register = () => {
   if (!presenterRef.current) {
     presenterRef.current = new RegisterPresenter(listener);
   }
+
+  useEffect(() => {
+    presenterRef.current = new RegisterPresenter(listener);
+  }, [rememberMe]);
 
   const checkSubmitButtonStatus = (): boolean => {
     return (

@@ -1,6 +1,6 @@
 import { AuthToken, User } from "tweeter-shared";
-import { UserService } from "../model.service/UserService";
-import { MessageView, Presenter } from "./Presenter";
+import { UserService } from "../../model.service/UserService";
+import { MessageView, Presenter } from "../Presenter";
 
 export interface UserInfoView extends MessageView {
   navigateTo: (url: string) => void;
@@ -28,48 +28,55 @@ export class UserInfoPresenter extends Presenter<UserInfoView> {
     this._view.navigateTo(`${this.getBaseUrl(pathName)}/${currentUser.alias}`);
   };
 
-  public async followDisplayedUserHelper (
-    displayedUser: User,
-    authToken: AuthToken
-  ): Promise<void> {
+  private async updateFollowStatusOnDisplayedUser(
+    displayedUser: User, 
+    authToken: AuthToken, 
+    action: string, 
+    isFollowerStatus: boolean, 
+    itemDescription: string,
+    followOperation: (authToken: AuthToken, displayedUser: User) => Promise<[number, number]>) {
     var followingUserToast = "";
 
     await this.doFailureReportingOperation(async () => {
-      followingUserToast = this._view.displayInfoMessage(`Following ${displayedUser!.name}...`, 0);
+      followingUserToast = this._view.displayInfoMessage(`${action} ${displayedUser!.name}...`, 0);
 
-      const [followerCount, followeeCount] = await this.userService.follow(
+      const [followerCount, followeeCount] = await followOperation(
         authToken!,
         displayedUser!
       );
 
-      this._view.setIsFollower(true);
+      this._view.setIsFollower(isFollowerStatus);
       this._view.setFollowerCount(followerCount);
       this._view.setFolloweeCount(followeeCount);
-    }, "follow user");
+    }, itemDescription);
     
     this._view.deleteMessage(followingUserToast);
+  }
+
+  public async followDisplayedUserHelper (
+    displayedUser: User,
+    authToken: AuthToken
+  ): Promise<void> {
+    await this.updateFollowStatusOnDisplayedUser(
+      displayedUser, 
+      authToken, 
+      "Following", 
+      true, 
+      "follow user", 
+      this.userService.follow.bind(this.userService));
   };
 
   public async unfollowDisplayedUserHelper (
     authToken: AuthToken,
     displayedUser: User
   ): Promise<void> {
-    var unfollowingUserToast = "";
-    
-    await this.doFailureReportingOperation(async () => {
-      unfollowingUserToast = this._view.displayInfoMessage(`Unfollowing ${displayedUser!.name}...`, 0);
-
-      const [followerCount, followeeCount] = await this.userService.unfollow(
-        authToken!,
-        displayedUser!
-      );
-
-      this._view.setIsFollower(false);
-      this._view.setFollowerCount(followerCount);
-      this._view.setFolloweeCount(followeeCount);
-    }, "unfollow user");
-    
-    this._view.deleteMessage(unfollowingUserToast);
+    await this.updateFollowStatusOnDisplayedUser(
+      displayedUser, 
+      authToken, 
+      "Unfollowing", 
+      false, 
+      "unfollow user", 
+      this.userService.unfollow.bind(this.userService));
   };
 
   public async setNumbFollowees (
@@ -78,6 +85,14 @@ export class UserInfoPresenter extends Presenter<UserInfoView> {
     await this.doFailureReportingOperation(async () => {
       this._view.setFolloweeCount(await this.userService.getFolloweeCount(authToken, displayedUser));
     }, "get followees count");
+  };
+
+  public async setNumbFollowers (
+    authToken: AuthToken,
+    displayedUser: User) {
+    await this.doFailureReportingOperation(async () => {
+      this._view.setFollowerCount(await this.userService.getFollowerCount(authToken, displayedUser));
+    }, "get followers count");
   };
 
   public async setIsFollowerStatus (
@@ -93,13 +108,5 @@ export class UserInfoPresenter extends Presenter<UserInfoView> {
         );
       }
     }, "determine follower status");
-  };
-
-  public async setNumbFollowers (
-    authToken: AuthToken,
-    displayedUser: User) {
-    await this.doFailureReportingOperation(async () => {
-      this._view.setFollowerCount(await this.userService.getFollowerCount(authToken, displayedUser));
-    }, "get followers count");
   };
 }

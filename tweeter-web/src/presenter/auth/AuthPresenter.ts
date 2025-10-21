@@ -1,6 +1,6 @@
 import { User, AuthToken } from "tweeter-shared";
-import { View, Presenter } from "./Presenter";
-import { AuthService } from "../model.service/AuthService";
+import { View, Presenter } from "../Presenter";
+import { AuthService } from "../../model.service/AuthService";
 
 export interface AuthView extends View {
   navigateTo: (url: string) => void;
@@ -15,7 +15,7 @@ export abstract class AuthPresenter<V extends AuthView> extends Presenter<V> {
     this.service = new AuthService();
   }
 
-  public async doAuth(
+  public async doAuthenticationOperation(
     alias: string,
     password: string, 
     rememberMe: boolean, 

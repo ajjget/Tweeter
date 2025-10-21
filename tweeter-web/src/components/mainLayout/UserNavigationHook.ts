@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useMessageActions } from "../toaster/MessageHooks";
 import { useUserInfo, useUserInfoActions } from "../userInfo/UserInfoHooks";
-import { UserNavigationPresenter, UserNavigationView } from "../../presenter/UserNavigationPresenter";
+import { UserNavigationPresenter, UserNavigationView } from "../../presenter/user_navigation/UserNavigationPresenter";
 import { useRef } from "react";
 
 export const useUserNavigation = (featurePath: string) => {
