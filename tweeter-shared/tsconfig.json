@@ -8,7 +8,7 @@
     "outDir": "./dist",
     "declaration": true,
     "esModuleInterop": true,
-
+    "ignoreDeprecations": "6.0",
     "moduleResolution": "node",
     "isolatedModules": true,
 
