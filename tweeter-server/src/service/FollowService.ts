@@ -1,14 +1,16 @@
-import { User, FakeData, UserDto } from "tweeter-shared";
+import { UserDto } from "tweeter-shared";
 import { Service } from "./Service";
 
-export class FollowService implements Service {
+export class FollowService extends Service {
+  
   public async loadMoreFollowees(
     token: string,
     userAlias: string,
     pageSize: number,
     lastItem: UserDto | null
   ): Promise<[UserDto[], boolean]> {
-    return this.getFakeData(lastItem, pageSize, userAlias);
+    await this.authorize(token);
+    return await this.userDAO.getFollowees(userAlias, pageSize, lastItem);
   };
 
   public async loadMoreFollowers (
@@ -17,12 +19,7 @@ export class FollowService implements Service {
     pageSize: number,
     lastItem: UserDto | null
     ): Promise<[UserDto[], boolean]> {
-    return this.getFakeData(lastItem, pageSize, userAlias);
+    await this.authorize(token);
+    return await this.userDAO.getFollowers(userAlias, pageSize, lastItem);
   };
-
-  private async getFakeData(lastItem: UserDto | null, pageSize: number, userAlias: string): Promise<[UserDto[], boolean]> {
-    const [items, hasMore] = FakeData.instance.getPageOfUsers(User.fromDto(lastItem), pageSize, userAlias);
-    const dtos = items.map((user) => user.dto);
-    return [dtos, hasMore];
-  } 
 }

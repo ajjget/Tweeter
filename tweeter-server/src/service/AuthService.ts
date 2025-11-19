@@ -1,21 +1,24 @@
-import { FakeData, AuthTokenDto, UserDto } from "tweeter-shared";
+import { AuthTokenDto, UserDto } from "tweeter-shared";
 import { Service } from "./Service";
+import bcrypt = require("bcryptjs");
 
-export class AuthService implements Service {
+export class AuthService extends Service {
+
   public async login (
       alias: string,
       password: string
     ): Promise<[UserDto, AuthTokenDto]> {
-      // TODO: Replace with the result of calling the server
-      const user = FakeData.instance.firstUser;
-  
-      if (user === null) {
+      const internalUser = await this.userDAO.getInternalUserByAlias(alias);
+      const hashedPassword = await this.hashPassword(password);
+      
+      if (hashedPassword == internalUser?.passwordHash) {
+        const userDto = internalUser.createUserDto();
+        const authTokenDto = await this.authTokenDAO.create(userDto.alias);
+        return [userDto, authTokenDto];
+      }
+      else {
         throw new Error("Invalid alias or password");
       }
-  
-      const userDto = user.dto;
-      const authTokenDto = FakeData.instance.authToken.dto;
-      return [userDto, authTokenDto];
     };
 
   public async register (
@@ -26,19 +29,35 @@ export class AuthService implements Service {
       userImageBytes: string,
       imageFileExtension: string
     ): Promise<[UserDto, AuthTokenDto]> {
-      // TODO: Replace with the result of calling the server
-      const user = FakeData.instance.firstUser;
+      const internalUser = await this.userDAO.getUserByAlias(alias);
       
-      if (user === null) {
-        throw new Error("Invalid registration");
-      }
+      if (internalUser === null) {
+        const hashedPassword = await this.hashPassword(password);
+        const imageUrl = await this.s3DAO.uploadImage(alias, userImageBytes, imageFileExtension);
 
-      const userDto = user.dto;
-      const authTokenDto = FakeData.instance.authToken.dto;
-      return [userDto, authTokenDto];
-    };
+        const userDto: UserDto = {
+          firstName: firstName,
+          lastName: lastName,
+          alias: alias,
+          imageUrl: imageUrl
+        }
+        this.userDAO.create(userDto, hashedPassword);
+
+        const authTokenDto = await this.authTokenDAO.create(userDto.alias);
+        return [userDto, authTokenDto];
+      }
+      else {
+        throw new Error("Invalid registration. Try using a different alias.");
+      }
+  };
 
   public async logout (authToken: string): Promise<void> {
-    await new Promise((res) => setTimeout(res, 1000));
+    await this.authTokenDAO.delete(authToken);
   };
+
+  private async hashPassword(plain: string): Promise<string> {
+    const saltRounds = 10;
+    const hash = await bcrypt.hash(plain, saltRounds);
+    return hash;
+  }
 }

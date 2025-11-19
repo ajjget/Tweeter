@@ -1,15 +1,17 @@
-import { AuthToken, Status, FakeData, StatusDto } from "tweeter-shared";
+import { StatusDto } from "tweeter-shared";
 import { Service } from "./Service";
 
-export class StatusService implements Service {
+export class StatusService extends Service {
+
   public async loadMoreFeedItems (
       authToken: string,
       userAlias: string,
       pageSize: number,
       lastItem: StatusDto | null
     ): Promise<[StatusDto[], boolean]> {
-      return this.getFakeData(lastItem, pageSize);
-    };
+      await this.authorize(authToken);
+      return this.statusDAO.getFeedItems(userAlias, pageSize, lastItem);
+  };
 
   public async loadMoreStoryItems (
     authToken: string,
@@ -17,19 +19,15 @@ export class StatusService implements Service {
     pageSize: number,
     lastItem: StatusDto | null
     ): Promise<[StatusDto[], boolean]> {
-      return this.getFakeData(lastItem, pageSize);
-    };
-
-  private async getFakeData(lastItem: StatusDto | null, pageSize: number): Promise<[StatusDto[], boolean]> {
-    const [items, hasMore] = FakeData.instance.getPageOfStatuses(Status.fromDto(lastItem), pageSize);
-    const dtos = items.map((status) => status.dto);
-    return [dtos, hasMore];
-  }
+      await this.authorize(authToken);
+      return this.statusDAO.getStoryItems(userAlias, pageSize, lastItem);
+  };
 
   public async postStatus (
     authToken: string,
     newStatus: StatusDto
   ): Promise<void> {
-    await new Promise((f) => setTimeout(f, 2000));
+    await this.authorize(authToken);
+    await this.statusDAO.postStatus(newStatus);
   };
 }

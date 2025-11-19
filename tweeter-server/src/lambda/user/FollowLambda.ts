@@ -5,7 +5,8 @@ export const handler = async (request: FollowActionRequest): Promise<SetFollowSt
   const userService = new UserService();
   const [followerCount, followeeCount] = await userService.follow(
     request.token, 
-    request.targetUser
+    request.followerAlias,
+    request.followeeAlias
   );
 
   return {

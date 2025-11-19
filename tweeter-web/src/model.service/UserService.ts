@@ -1,4 +1,4 @@
-import { AuthToken, User, GetUserRequest, FollowActionRequest, GetIsFollowerStatusRequest } from "tweeter-shared";
+import { AuthToken, User, GetUserRequest, FollowActionRequest, FollowCountRequest } from "tweeter-shared";
 import { Service } from "./Service";
 
 export class UserService extends Service {
@@ -16,11 +16,13 @@ export class UserService extends Service {
 
   public async follow (
     authToken: AuthToken,
-    userToFollow: User
+    follower: User,
+    followee: User
   ): Promise<[followerCount: number, followeeCount: number]> {
     const request: FollowActionRequest = {
       token: authToken.token,
-      targetUser: userToFollow.dto
+      followerAlias: follower.alias,
+      followeeAlias: followee.alias
     }
 
     return await this.serverFacade.follow(request);
@@ -28,11 +30,13 @@ export class UserService extends Service {
 
   public async unfollow (
     authToken: AuthToken,
-    userToUnfollow: User
+    follower: User,
+    followee: User
   ): Promise<[followerCount: number, followeeCount: number]> {
     const request: FollowActionRequest = {
       token: authToken.token,
-      targetUser: userToUnfollow.dto
+      followerAlias: follower.alias,
+      followeeAlias: followee.alias
     }
 
     return await this.serverFacade.unfollow(request);
@@ -42,9 +46,9 @@ export class UserService extends Service {
     authToken: AuthToken,
     user: User
   ): Promise<number> {
-    const request: FollowActionRequest = {
+    const request: FollowCountRequest = {
       token: authToken.token,
-      targetUser: user.dto
+      userAlias: user.alias
     }
 
     return await this.serverFacade.getFolloweeCount(request);
@@ -54,9 +58,9 @@ export class UserService extends Service {
     authToken: AuthToken,
     user: User
   ): Promise<number> {
-    const request: FollowActionRequest = {
+    const request: FollowCountRequest = {
       token: authToken.token,
-      targetUser: user.dto
+      userAlias: user.alias
     }
 
     return await this.serverFacade.getFollowerCount(request);
@@ -64,13 +68,13 @@ export class UserService extends Service {
 
   public async getIsFollowerStatus (
     authToken: AuthToken,
-    user: User,
-    selectedUser: User
+    follower: User,
+    followee: User
   ): Promise<boolean> {
-    const request: GetIsFollowerStatusRequest = {
+    const request: FollowActionRequest = {
       token: authToken.token,
-      targetUser: user.dto,
-      user: selectedUser.dto
+      followerAlias: follower.alias,
+      followeeAlias: followee.alias
     }
 
     return await this.serverFacade.getIsFollowerStatus(request);

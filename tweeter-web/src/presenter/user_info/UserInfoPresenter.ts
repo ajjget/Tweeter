@@ -29,12 +29,13 @@ export class UserInfoPresenter extends Presenter<UserInfoView> {
   };
 
   private async updateFollowStatusOnDisplayedUser(
+    rootUser: User,
     displayedUser: User, 
     authToken: AuthToken, 
     action: string, 
     isFollowerStatus: boolean, 
     itemDescription: string,
-    followOperation: (authToken: AuthToken, displayedUser: User) => Promise<[number, number]>) {
+    followOperation: (authToken: AuthToken, rootUser: User, displayedUser: User) => Promise<[number, number]>) {
     var followingUserToast = "";
 
     await this.doFailureReportingOperation(async () => {
@@ -42,6 +43,7 @@ export class UserInfoPresenter extends Presenter<UserInfoView> {
 
       const [followerCount, followeeCount] = await followOperation(
         authToken!,
+        rootUser!,
         displayedUser!
       );
 
@@ -55,9 +57,11 @@ export class UserInfoPresenter extends Presenter<UserInfoView> {
 
   public async followDisplayedUserHelper (
     displayedUser: User,
+    rootUser: User,
     authToken: AuthToken
   ): Promise<void> {
     await this.updateFollowStatusOnDisplayedUser(
+      rootUser,
       displayedUser, 
       authToken, 
       "Following", 
@@ -68,9 +72,11 @@ export class UserInfoPresenter extends Presenter<UserInfoView> {
 
   public async unfollowDisplayedUserHelper (
     authToken: AuthToken,
+    rootUser: User,
     displayedUser: User
   ): Promise<void> {
     await this.updateFollowStatusOnDisplayedUser(
+      rootUser,
       displayedUser, 
       authToken, 
       "Unfollowing", 

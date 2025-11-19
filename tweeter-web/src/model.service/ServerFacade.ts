@@ -17,8 +17,8 @@ import {
   FollowActionRequest,
   SetFollowStatusResponse,
   GetFollowCountResponse,
-  GetIsFollowerStatusRequest,
   GetIsFollowerStatusResponse,
+  FollowCountRequest,
 } from "tweeter-shared";
 import { ClientCommunicator } from "./ClientCommunicator";
 
@@ -282,10 +282,10 @@ export class ServerFacade {
   }
 
   public async getFolloweeCount(
-    request: FollowActionRequest
+    request: FollowCountRequest
   ): Promise<number> {
     const response = await this.clientCommunicator.doPost<
-      FollowActionRequest,
+      FollowCountRequest,
       GetFollowCountResponse
     >(request, "/followee/count");
 
@@ -298,10 +298,10 @@ export class ServerFacade {
   }
 
   public async getFollowerCount(
-    request: FollowActionRequest
+    request: FollowCountRequest
   ): Promise<number> {
     const response = await this.clientCommunicator.doPost<
-      FollowActionRequest,
+      FollowCountRequest,
       GetFollowCountResponse
     >(request, "/follower/count");
 
@@ -314,10 +314,10 @@ export class ServerFacade {
   }
 
   public async getIsFollowerStatus(
-    request: GetIsFollowerStatusRequest
+    request: FollowActionRequest
   ): Promise<boolean> {
     const response = await this.clientCommunicator.doPost<
-      GetIsFollowerStatusRequest,
+      FollowActionRequest,
       GetIsFollowerStatusResponse
     >(request, "/follower/status");
 

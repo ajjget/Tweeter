@@ -27,7 +27,7 @@ export type { LoginRequest } from "./model/net/request/auth/LoginRequest";
 export type { RegisterRequest } from "./model/net/request/auth/RegisterRequest";
 export type { LogoutRequest } from "./model/net/request/auth/LogoutRequest";
 export type { FollowActionRequest } from "./model/net/request/user/FollowActionRequest";
-export type { GetIsFollowerStatusRequest } from "./model/net/request/user/GetIsFollowerStatusRequest";
+export type { FollowCountRequest } from "./model/net/request/user/FollowCountRequest";
 export type { GetUserRequest } from "./model/net/request/user/GetUserRequest";
 
 //

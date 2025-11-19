@@ -54,7 +54,7 @@ const UserInfo = () => {
   ): Promise<void> => {
     event.preventDefault();
     setIsLoading(true);
-    presenterRef.current!.followDisplayedUserHelper(displayedUser!, authToken!);
+    presenterRef.current!.followDisplayedUserHelper(displayedUser!, currentUser!, authToken!);
     setIsLoading(false);
   };
 
@@ -63,7 +63,7 @@ const UserInfo = () => {
   ): Promise<void> => {
     event.preventDefault();
     setIsLoading(true);
-    presenterRef.current!.unfollowDisplayedUserHelper(authToken!, displayedUser!);
+    presenterRef.current!.unfollowDisplayedUserHelper(authToken!, currentUser!, displayedUser!);
     setIsLoading(false);
   };
 
