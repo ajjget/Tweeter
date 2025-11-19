@@ -1,9 +1,8 @@
 import { GetUserRequest, GetUserResponse } from "tweeter-shared";
-import { UserService } from "../../service/UserService";
+import { services } from "../Lambda";
 
 export const handler = async (request: GetUserRequest): Promise<GetUserResponse> => {
-  const userService = new UserService();
-  const user = await userService.getUser(
+  const user = await services.userService.getUser(
     request.token, 
     request.alias,
   );

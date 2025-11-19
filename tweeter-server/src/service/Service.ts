@@ -11,8 +11,7 @@ export abstract class Service {
   protected authTokenDAO: IAuthTokenDAO;
   protected statusDAO: IStatusDAO;
 
-  constructor() {
-    const factory = new DAOFactory();
+  constructor(factory: IDAOFactory) {
     this.userDAO = factory.createUserDAO();
     this.s3DAO = factory.createS3DAO();
     this.authTokenDAO = factory.createAuthTokenDAO();

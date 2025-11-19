@@ -1,9 +1,8 @@
+import { services } from "../Lambda"
 import { LogoutRequest, TweeterResponse } from "tweeter-shared";
-import { AuthService } from "../../service/AuthService"
 
 export const handler = async (request: LogoutRequest): Promise<TweeterResponse> => {
-  const authService = new AuthService();
-  await authService.logout(
+  await services.authService.logout(
     request.token
   );
 
