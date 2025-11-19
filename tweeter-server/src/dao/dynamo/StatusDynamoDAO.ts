@@ -1,6 +1,7 @@
 import { StatusDto } from "tweeter-shared";
+import { IStatusDAO } from "../interfaces/IStatusDAO";
 
-export class StatusDAO {
+export class StatusDynamoDAO implements IStatusDAO {
   getStoryItems(
     userAlias: string, 
     pageSize: number, 

@@ -1,6 +1,7 @@
 import { AuthTokenDto } from "tweeter-shared";
+import { IAuthTokenDAO } from "../interfaces/IAuthTokenDAO";
 
-export class AuthTokenDAO {
+export class AuthTokenDynamoDAO implements IAuthTokenDAO {
   create(userAlias: string): Promise<AuthTokenDto> {
     return Promise.resolve({ token: "1", timestamp: 1 });
   }

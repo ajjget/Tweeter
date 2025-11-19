@@ -1,4 +1,3 @@
-import { DAOFactory } from "../dao/DAOFactory";
 import { IDAOFactory } from "../dao/IDAOFactory";
 import { IAuthTokenDAO } from "../dao/interfaces/IAuthTokenDAO";
 import { IS3DAO } from "../dao/interfaces/IS3DAO";

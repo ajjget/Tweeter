@@ -1,7 +1,8 @@
 import { UserDto } from "tweeter-shared";
 import { InternalUser } from "../models/InternalUser";
+import { IUserDAO } from "../interfaces/IUserDAO";
 
-export class UserDAO {
+export class UserDynamoDAO implements IUserDAO {
   create(user: UserDto, passwordHash: string): Promise<UserDto> {
     return Promise.resolve({
       firstName: "",
