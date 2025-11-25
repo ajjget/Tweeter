@@ -9,9 +9,12 @@ export class AuthService extends Service {
       password: string
     ): Promise<[UserDto, AuthTokenDto]> {
       const internalUser = await this.userDAO.getInternalUserByAlias(alias);
-      const hashedPassword = await this.hashPassword(password);
+
+      if (internalUser == null) {
+        throw new Error("Unknown alias");
+      }
       
-      if (hashedPassword == internalUser?.passwordHash) {
+      if (await bcrypt.compare(password, internalUser?.passwordHash)) {
         const userDto = internalUser.createUserDto();
         const authTokenDto = await this.authTokenDAO.create(userDto.alias);
         return [userDto, authTokenDto];
@@ -29,26 +32,19 @@ export class AuthService extends Service {
       userImageBytes: string,
       imageFileExtension: string
     ): Promise<[UserDto, AuthTokenDto]> {
-      const internalUser = await this.userDAO.getUserByAlias(alias);
-      
-      if (internalUser === null) {
-        const hashedPassword = await this.hashPassword(password);
-        const imageUrl = await this.s3DAO.uploadImage(alias, userImageBytes, imageFileExtension);
+      const hashedPassword = await this.hashPassword(password);
+      const imageUrl = await this.s3DAO.uploadImage(alias, userImageBytes, imageFileExtension);
 
-        const userDto: UserDto = {
-          firstName: firstName,
-          lastName: lastName,
-          alias: alias,
-          imageUrl: imageUrl
-        }
-        this.userDAO.create(userDto, hashedPassword);
+      const userDto: UserDto = {
+        firstName: firstName,
+        lastName: lastName,
+        alias: alias,
+        imageUrl: imageUrl
+      }
+      await this.userDAO.create(userDto, hashedPassword);
 
-        const authTokenDto = await this.authTokenDAO.create(userDto.alias);
-        return [userDto, authTokenDto];
-      }
-      else {
-        throw new Error("Invalid registration. Try using a different alias.");
-      }
+      const authTokenDto = await this.authTokenDAO.create(userDto.alias);
+      return [userDto, authTokenDto];
   };
 
   public async logout (authToken: string): Promise<void> {

@@ -18,9 +18,18 @@ export abstract class Service {
   }
 
   protected async authorize(token: string): Promise<void> {
-    const authorized = await this.authTokenDAO.authorize(token);
-    if (!authorized) {
-      throw new Error("Auth token was not found in DB"); 
+    const authToken = await this.authTokenDAO.getToken(token);
+
+    if (authToken == null) {
+      throw new Error("User is unauthorized: no token was found in DB");
+    }
+
+    const now = Date.now();
+    const twoHours = 2 * 60 * 60 * 1000;
+
+    if (now - authToken.timestamp > twoHours) {
+      await this.authTokenDAO.delete(token);
+      throw new Error("Auth key is expired... logging out...");
     }
   }
 }

@@ -1,3 +1,5 @@
-/node_modules
-/dist
-/nodejs
+layer
+dist
+node_modules
+.aws-sam
+*.js

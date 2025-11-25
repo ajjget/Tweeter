@@ -18,7 +18,7 @@ export class UserService extends Service {
     await this.authorize(token);
     await this.userDAO.followUser(followerAlias, followeeAlias);
 
-    return await this.getFolloweeAndFollowerCounts(token, followeeAlias);
+    return await this.getFolloweeAndFollowerCounts(followeeAlias);
   };
 
   public async unfollow (
@@ -29,12 +29,13 @@ export class UserService extends Service {
     await this.authorize(token);
     await this.userDAO.unfollowUser(followerAlias, followeeAlias);
 
-    return await this.getFolloweeAndFollowerCounts(token, followeeAlias);
+    return await this.getFolloweeAndFollowerCounts(followeeAlias);
   };
 
-  private async getFolloweeAndFollowerCounts(token: string, userAlias: string): Promise<[number, number]> {
-    const followerCount = await this.getFollowerCount(token, userAlias);
-    const followeeCount = await this.getFolloweeCount(token, userAlias);
+  // if you're using this function, you've already authenticated
+  private async getFolloweeAndFollowerCounts(userAlias: string): Promise<[number, number]> {
+    const followerCount = await this.userDAO.getFollowerCount(userAlias);
+    const followeeCount = await this.userDAO.getFolloweeCount(userAlias);
 
     return [followerCount, followeeCount];
   }
