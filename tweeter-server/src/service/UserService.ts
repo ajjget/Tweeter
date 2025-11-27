@@ -7,7 +7,9 @@ export class UserService extends Service {
       alias: string
     ): Promise<UserDto | null> {
     await this.authorize(token);
-    return await this.userDAO.getUserByAlias(alias);
+    let cleanedAlias = alias.startsWith('@') ? alias.slice(1) : alias;
+    cleanedAlias = alias.includes("/") ? alias.split("/").pop() ?? "" : cleanedAlias;
+    return await this.userDAO.getUserByAlias(cleanedAlias);
   };
 
   public async follow (

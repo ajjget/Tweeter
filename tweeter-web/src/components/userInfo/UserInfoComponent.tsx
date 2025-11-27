@@ -46,6 +46,7 @@ const UserInfo = () => {
 
   const switchToLoggedInUser = (event: React.MouseEvent): void => {
     event.preventDefault();
+    console.log(`location.pathname: ${location.pathname}`);
     presenterRef.current!.NavigateToLoggedInUser(currentUser!, location.pathname);
   };
 

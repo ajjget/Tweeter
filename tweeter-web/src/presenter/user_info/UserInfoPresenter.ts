@@ -19,13 +19,13 @@ export class UserInfoPresenter extends Presenter<UserInfoView> {
   }
 
   public getBaseUrl(pathname: string): string {
-    const segments = pathname.split("/@");
-    return segments.length > 1 ? segments[0] : "/";
+    const segments = pathname.split("/");
+    return segments.length > 2 ? segments[1] : "/";
   };
 
   public NavigateToLoggedInUser(currentUser: User, pathName: string): void {
     this._view.setDisplayedUser(currentUser);
-    this._view.navigateTo(`${this.getBaseUrl(pathName)}/${currentUser.alias}`);
+    this._view.navigateTo(`/${this.getBaseUrl(pathName)}/${currentUser.alias}`);
   };
 
   private async updateFollowStatusOnDisplayedUser(

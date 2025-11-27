@@ -2,17 +2,27 @@ import { PagedStatusItemRequest, PagedStatusItemResponse } from "tweeter-shared"
 import { services } from "../Lambda";
 
 export const handler = async (request: PagedStatusItemRequest): Promise<PagedStatusItemResponse> => {
-  const [items, hasMore] = await services.statusService.loadMoreStoryItems(
-    request.token, 
-    request.userAlias, 
-    request.pageSize, 
-    request.lastItem
-  );
+  try {
+    const [items, hasMore] = await services.statusService.loadMoreStoryItems(
+      request.token, 
+      request.userAlias, 
+      request.pageSize, 
+      request.lastItem
+    );
 
-  return {
-    success: true,
-    message: null,
-    items: items,
-    hasMore: hasMore
+    return {
+      success: true,
+      message: null,
+      items: items,
+      hasMore: hasMore
+    }
+  }
+  catch (error) {
+    return {
+      success: false,
+      message: (error as Error).message ?? "Unknown error",
+      items: null,
+      hasMore: false
+    }
   }
 }
